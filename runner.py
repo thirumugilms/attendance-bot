@@ -61,8 +61,22 @@ def run_automation_batch(run_type: str = "MANUAL", dry_run: bool = False, specif
             logger.info(f"--- Processing {index}/{len(enabled_ids)}: {test_id.id} ---")
             
             result_data = attendance_handler.submit_attendance(session_url, test_id.id, dry_run=dry_run)
-            
             status = result_data["result"]
+            
+            # --- Auto-Refresh Expired QR Tokens ---
+            # If the Apps Script session drops mid-batch, V8 injection will TIMEOUT because the DOM form is gone.
+            if status in ["TIMEOUT", "EXPIRED"] and not dry_run:
+                logger.info(f"Timeout detected for {test_id.id}. The session URL may have expired mid-batch! Refreshing QR...")
+                new_session = qr_handler.get_active_session_url()
+                if new_session and new_session != session_url:
+                    logger.info("Successfully fetched a new session URL. Retrying attendance...")
+                    session_url = new_session
+                    # Update summary tracker so we correctly log the new token
+                    summary.session_identifier = session_url.split('/')[-1] if '/' in session_url else session_url
+                    result_data = attendance_handler.submit_attendance(session_url, test_id.id, dry_run=dry_run)
+                    status = result_data["result"]
+                else:
+                    logger.warning("Failed to fetch a new session URL. Falling back to screenshot generation.")
             
             screenshot_path = None
             if status in ["FAIL", "ERROR", "TIMEOUT"] and not dry_run:

@@ -39,6 +39,14 @@ class AttendanceHandler:
                         if "googleusercontent.com" in f.url:
                             # Try to execute JS directly in the frame execution context
                             # This bypasses all strict cross-origin UI visibility checks!
+                            is_expired = f.evaluate("document.body.innerText.includes('QR Code Expired')")
+                            if is_expired:
+                                logger.warning(f"Detected EXPIRED QR code text for {student_id} directly on screen.")
+                                result["result"] = "EXPIRED"
+                                result["message"] = "QR Code Expired. Please scan latest QR."
+                                result["duration"] = time.time() - start_time
+                                return result
+                            
                             is_ready = f.evaluate("document.getElementById('studentid') !== null")
                             if is_ready:
                                 logger.info(f"Injecting Javascript to submit attendance for {student_id}")
