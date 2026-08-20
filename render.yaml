@@ -3,11 +3,7 @@ services:
     name: attendance-bot
     env: docker
     region: singapore
-    plan: starter # A starter plan is required because free tier does not support persistent disks!
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
+    plan: free
     envVars:
       - key: PORT
         value: 5000
