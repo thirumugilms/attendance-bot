@@ -36,12 +36,12 @@ def safe_write_csv(row: list, filepath: Path):
 
 def safe_read_json(filepath: Path, default=None):
     if not filepath.exists():
-        return default or {}
+        return default if default is not None else {}
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.load(f)
     except json.JSONDecodeError:
-        return default or {}
+        return default if default is not None else {}
 
 def safe_write_json(data: dict, filepath: Path):
     tmp_path = filepath.with_suffix('.tmp')
