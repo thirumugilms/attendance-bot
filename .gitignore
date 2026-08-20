@@ -4,7 +4,4 @@ __pycache__/
 .env
 .pytest_cache/
 results/
-config/*.json
-!config/ids.json.example
-!config/schedule.json.example
-!config/settings.json.example
+

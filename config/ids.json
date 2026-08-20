@@ -1,0 +1,26 @@
+[
+    {
+        "id": "SIT23CS230",
+        "enabled": true
+    },
+    {
+        "id": "SIT23CS044",
+        "enabled": false
+    },
+    {
+        "id": "SIT23CS139",
+        "enabled": false
+    },
+    {
+        "id": "SIT23CS126",
+        "enabled": false
+    },
+    {
+        "id": "SIT23CS032",
+        "enabled": false
+    },
+    {
+        "id": "SIT23CS047",
+        "enabled": true
+    }
+]
