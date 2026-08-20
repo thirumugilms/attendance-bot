@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Attendance Tester</title>
+    <!-- We can use Google Fonts and some basic CSS framework like Tailwind via CDN, or just vanilla styling. Using Bootstrap via CDN for quick clean UI -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #212529;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #cfd8dc;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #343a40;
+            color: #fff;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .top-navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
+            padding: 15px 20px;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, .05);
+            border: none;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            height: 12px;
+            width: 12px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .bg-running {
+            background-color: #198754;
+        }
+
+        .bg-stopped {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar text-white">
+                <h4 class="ps-3 mb-4 text-white">QA Tester</h4>
+                <a href="/" class="{{ 'active' if request.endpoint == 'admin.dashboard' else '' }}">Dashboard</a>
+                <a href="/ids" class="{{ 'active' if request.endpoint == 'admin.manage_ids' else '' }}">Manage IDs</a>
+                <a href="/schedule"
+                    class="{{ 'active' if request.endpoint == 'admin.manage_schedule' else '' }}">Schedule</a>
+                <a href="/results" class="{{ 'active' if request.endpoint == 'admin.results' else '' }}">Results</a>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 bg-light">
+                <div class="top-navbar d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{% block page_title %}{% endblock %}</h5>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-primary btn-sm me-3" id="runNowBtn">▶ RUN NOW</button>
+                        <a href="{{ url_for('admin.logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+                    </div>
+                </div>
+
+                <div class="content-area">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('runNowBtn').addEventListener('click', function () {
+            if (confirm('Start a manual automation batch right now?')) {
+                fetch('/api/run_now', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Manual run started in the background.');
+                        }
+                    });
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

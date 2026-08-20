@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Status Card -->
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5 class="mb-3">Automation Status</h5>
+            <div class="d-flex align-items-center mb-3">
+                <span class="status-dot {{ 'bg-running' if automation_enabled else 'bg-stopped' }}"></span>
+                <strong class="fs-4">{{ 'RUNNING' if automation_enabled else 'STOPPED' }}</strong>
+            </div>
+            <p class="text-muted">When stopped, scheduled runs will not execute.</p>
+
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-success {{ 'active' if automation_enabled else '' }}"
+                    onclick="toggleAutomation(true)">START</button>
+                <button type="button" class="btn btn-outline-danger {{ 'active' if not automation_enabled else '' }}"
+                    onclick="toggleAutomation(false)">STOP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5 class="mb-3">Lifetime Summary</h5>
+            <div class="row text-center mb-2">
+                <div class="col-4">
+                    <h3 class="text-primary">{{ daily.completed_runs }}</h3>
+                    <small class="text-muted">Total Runs</small>
+                </div>
+                <div class="col-4">
+                    <h3 class="text-success">{{ daily.passed }}</h3>
+                    <small class="text-muted">Passed Submissions</small>
+                </div>
+                <div class="col-4">
+                    <h3 class="text-danger">{{ daily.failed }}</h3>
+                    <small class="text-muted">Failed Submissions</small>
+                </div>
+            </div>
+            <div class="row text-center mt-3 border-top pt-3">
+                <div class="col-6">
+                    <h4 class="text-info">{{ daily.total_id_tests }}</h4>
+                    <small class="text-muted">Total Tests</small>
+                </div>
+                <div class="col-6">
+                    {% set avg_dur = (daily.total_duration / daily.total_id_tests) if daily.total_id_tests > 0 else 0 %}
+                    <h4 class="text-warning">{{ "%.2f"|format(avg_dur) }}s</h4>
+                    <small class="text-muted">Avg Duration</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <h5 class="mb-3">Schedule Configuration</h5>
+            <div class="alert alert-secondary">
+                <strong>Timezone:</strong> {{ schedule.timezone }}<br>
+                <strong>Times:</strong>
+                {% if schedule.enabled and schedule.times %}
+                {{ schedule.times | join(', ') }}
+                {% else %}
+                <em>No times scheduled or schedule locally disabled.</em>
+                {% endif %}
+            </div>
+            <a href="/schedule" class="btn btn-secondary btn-sm" style="width:150px;">Manage Schedule</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleAutomation(enabled) {
+        fetch('/api/toggle_automation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: enabled })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}
