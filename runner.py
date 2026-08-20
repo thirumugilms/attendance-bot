@@ -65,7 +65,10 @@ def run_automation_batch(run_type: str = "MANUAL", dry_run: bool = False, specif
             
             # --- Auto-Refresh Expired QR Tokens ---
             # If the Apps Script session drops mid-batch, V8 injection will TIMEOUT because the DOM form is gone.
-            if status in ["TIMEOUT", "EXPIRED"] and not dry_run:
+            # OR if the server rejects it gracefully, status is FAIL but we check the message!
+            is_server_expired = status == "FAIL" and "Expired" in result_data.get("message", "")
+            
+            if (status in ["TIMEOUT", "EXPIRED"] or is_server_expired) and not dry_run:
                 logger.info(f"Timeout detected for {test_id.id}. The session URL may have expired mid-batch! Refreshing QR...")
                 new_session = qr_handler.get_active_session_url()
                 if new_session and new_session != session_url:
