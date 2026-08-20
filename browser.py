@@ -14,8 +14,8 @@ class BrowserManager:
         self.playwright = sync_playwright().start()
         
         self.browser = self.playwright.chromium.launch(
-            channel="chrome",
-            headless=config.HEADLESS
+            headless=config.HEADLESS,
+            channel="chrome" if not config.HEADLESS else None
         )
         self.context = self.browser.new_context(
             timezone_id=config.TIMEZONE,
