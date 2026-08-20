@@ -1,12 +1,5 @@
-# Use the official lightweight Python image
-FROM python:3.11-slim
-
-# Install system dependencies extending to those strictly required by Playwright/Chromium
-RUN apt-get update && apt-get install -y \
-    curl \
-    python3-dev \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Use the official Microsoft Playwright image which has Chromium and all OS dependencies pre-installed!
+FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
 
 WORKDIR /app
 
@@ -14,9 +7,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
-# Install playwright chromium explicitly including missing OS deps it finds
+# Install playwright chromium (The OS dependencies are already baked into the image)
 RUN playwright install chromium
-RUN playwright install-deps chromium
 
 # Copy app files
 COPY . .
