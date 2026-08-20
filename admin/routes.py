@@ -10,9 +10,14 @@ admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.before_request
 def require_login():
-    if request.endpoint and request.endpoint != 'admin.login' and not request.endpoint.startswith('static'):
+    if request.endpoint and request.endpoint not in ['admin.login', 'admin.ping'] and not request.endpoint.startswith('static'):
         if not session.get('logged_in'):
             return redirect(url_for('admin.login'))
+
+@admin_bp.route('/ping')
+def ping():
+    # Dedicated microscopic endpoint for cron-job.org to prevent 302 Redirect errors!
+    return "OK", 200
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
